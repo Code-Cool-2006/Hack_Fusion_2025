@@ -1,6 +1,7 @@
 # Hack_Fusion_2025
 
 Domain : Web & App Development
+
 Problem Statement : Collaborative Local Legislation Hub
 
 💡 Project Details (Simplified & Bullet Format)
