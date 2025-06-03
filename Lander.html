@@ -3,19 +3,238 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="Style_Folder/lander.css">
   <title>Login or Create Account</title>
 </head>
 <body>
+<style>
+  body {
+    background: #fff;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    padding: 40px 32px 24px 32px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .card h2 {
+    margin: 0 0 32px 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #222;
+    text-align: center;
+  }
+  .input-group {
+    display: flex;
+    width: 100%;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .input-prefix {
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px 0 0 8px;
+    padding: 0 16px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    color: #888;
+    height: 48px;
+  }
+  .input-phone {
+    flex: 1;
+    border: 1px solid #e0e0e0;
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    padding: 0 16px;
+    font-size: 1rem;
+    height: 48px;
+    outline: none;
+  }
+  .input-phone:focus {
+    border-color: #b9a4f4;
+  }
+  .btn-continue {
+    width: 100%;
+    height: 44px;
+    background: #b9a4f4;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+  }
+  .btn-continue:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+  .btn-continue:disabled {
+    background: #e0e0e0;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .terms-link {
+    color: #3b82f6;
+    font-size: 0.98rem;
+    text-align: center;
+    text-decoration: none;
+    margin-bottom: 0;
+    display: block;
+  }
+  .aadhaar-link {
+    color: #2563eb;
+    font-size: 1rem;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 24px;
+    display: block;
+  }
+  .error-message {
+    color: #dc2626;
+    font-size: 0.9rem;
+    margin-top: -24px;
+    margin-bottom: 16px;
+    display: none;
+    text-align: center;
+    width: 100%;
+  }
+  .success-message {
+    color: #059669;
+    font-size: 0.9rem;
+    margin-top: -24px;
+    margin-bottom: 16px;
+    display: none;
+    text-align: center;
+    width: 100%;
+  }
+  .loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .loading::after {
+    content: '...';
+  }
+</style>
   <div class="card">
-    <h2>Login or Create Account</h2>
+    <h2>Login</h2>
     <div class="input-group">
       <span class="input-prefix">UIN</span>
-      <input class="input-phone" type="text" placeholder="Unique Identification Number" maxlength="10" />
+      <input class="input-phone" type="text" placeholder="Unique Identification Number" maxlength="10" id="uinInput" />
     </div>
-    <button class="btn-continue">Continue</button>
-    <p>I agree to the Terms of Services <a href="#" class="terms-link">Terms of Services</a></p>
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+    <button class="btn-continue" id="continueBtn" disabled>Continue</button>
+    <p>I agree to the <a href="#" class="terms-link">Terms of Services</a></p>
+    <a href="GeneAcc.html" class="terms-link"><p>Don't have an Account? Contact Admin</p></a>
     <a href="OTP.html" class="aadhaar-link">Try using Phone Number</a>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const uinInput = document.getElementById('uinInput');
+      const continueBtn = document.getElementById('continueBtn');
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        successMessage.style.display = 'none';
+      }
+
+      function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+      }
+
+      function clearMessages() {
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
+      }
+
+      uinInput.addEventListener('input', function() {
+        const value = this.value.trim();
+        // Only allow numbers
+        this.value = value.replace(/[^0-9]/g, '');
+        continueBtn.disabled = this.value.length !== 10;
+        clearMessages();
+      });
+
+      continueBtn.addEventListener('click', async function() {
+        const uin = uinInput.value.trim();
+        clearMessages();
+        
+        // Validate before sending
+        if (!uin) {
+          showError('Please enter your UIN');
+          return;
+        }
+
+        if (uin.length !== 10) {
+          showError('UIN must be 10 digits long');
+          return;
+        }
+        
+        // Add loading state
+        continueBtn.classList.add('loading');
+        continueBtn.disabled = true;
+        
+        try {
+          console.log('Sending UIN:', uin); // Debug log
+          const response = await fetch('http://localhost:3001/api/verify-uin', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ uin })
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            showSuccess('UIN verified successfully! Redirecting...');
+            // Store user info if needed
+            localStorage.setItem('userName', data.user.name);
+            localStorage.setItem('userEmail', data.user.email);
+            
+            // Redirect to OTP page after 2 seconds
+            setTimeout(() => {
+              window.location.href = 'Dashboard.html';
+            }, 2000);
+          } else {
+            showError(data.message || 'Invalid UIN');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showError('Unable to connect to server. Please try again later.');
+        } finally {
+          continueBtn.classList.remove('loading');
+          continueBtn.disabled = false;
+        }
+      });
+
+      // Add keyboard support
+      uinInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !continueBtn.disabled) {
+          continueBtn.click();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
