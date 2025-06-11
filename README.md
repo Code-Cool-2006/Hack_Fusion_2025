@@ -89,3 +89,10 @@ Problem Statement : Collaborative Local Legislation Hub
     Complies with data privacy laws (like GDPR)
     Could become a nationwide civic engagement platform
     Long-term: builds trust in the system and brings democracy closer to the people
+
+
+
+https://github.com/user-attachments/assets/edb8894d-a8e9-4e27-8efd-aa3964996fde
+
+
+    
